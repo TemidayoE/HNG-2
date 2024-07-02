@@ -1,10 +1,12 @@
 from fastapi import FastAPI, Request, HTTPException
+from dotenv import load_dotenv
 import httpx
+import os
 
+cc_python_module = os.getenv("CC_PYTHON_MODULE")
 app = FastAPI()
-
-GEOLOCATION_API_URL =  "https://ipinfo.io/json"
-
+#"https://ipinfo.io/json"
+GEOLOCATION_API_URL = 'https://api.ipgeolocation.io/getip'
 WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"
 WEATHER_API_KEY = "7055a238f3b6dea93e3d5099b152d7d4"
 
