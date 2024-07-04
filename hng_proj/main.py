@@ -1,46 +1,21 @@
-from fastapi import FastAPI, Request, HTTPException
-from dotenv import load_dotenv
-import httpx
-import os
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.params import Query
+from typing import Optional
+from pydantic import BaseModel
 
-cc_python_module = os.getenv("CC_PYTHON_MODULE")
 app = FastAPI()
-#"https://ipinfo.io/json"
-GEOLOCATION_API_URL = 'https://api.ipgeolocation.io/getip'
-WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"
-WEATHER_API_KEY = "7055a238f3b6dea93e3d5099b152d7d4"
 
-@app.get("/api/home")
-async def home(request: Request, visitor_name: str):
+class Visitor(BaseModel):
+    client_ip: str
+    location: str
+    greeting: str
     
-    client_ip = request.client.host  
-  
-    async with httpx.AsyncClient() as client:
-        geo_response = await client.get(GEOLOCATION_API_URL.format(ip=client_ip))
-        geo_data = geo_response.json()
-
-    city = geo_data.get("city", "Unknown Location")
-
-   
-    lat, lon = geo_data.get("loc", "0,0").split(',')
-    weather_params = {
-        "lat": lat,
-        "lon": lon,
-        "appid": WEATHER_API_KEY,
-        "units": "metric"  
-    }
-
-    async with httpx.AsyncClient() as client:
-        weather_response = await client.get(WEATHER_API_URL, params=weather_params)
-        weather_data = weather_response.json()
-
-   
-    temperature = weather_data.get("main", {}).get("temp", 0)
-
-    greeting = f"Hello, {visitor_name}!, the temperature is {temperature} degrees Celsius in {city}"
-
-    return {
-        "client_ip": client_ip,
-        "location": city,
-        "greeting": greeting
-    }
+    
+@app.get("/api/hello")
+def hello(visitor_name: Optional[str] = Query(...)):
+    client_ip = "127.0.0.1"
+    location = "Lagos"
+    temperature = 11
+    greeting = f"Hello, {visitor_name}!, the temperature is {temperature} degree celcius in {location}"
+    return JSONResponse(content= {"client_ip": client_ip,"location":location, "greeting":greeting}, media_type="application/json")
